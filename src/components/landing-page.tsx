@@ -12,7 +12,6 @@ import {
   MessageCircle,
   Palette,
   Phone,
-  Sparkles,
   X,
 } from "lucide-react";
 import Image from "next/image";
@@ -126,8 +125,6 @@ export function LandingPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [promoVisible, setPromoVisible] = useState(false);
-  const [promoDismissed, setPromoDismissed] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
   const [lang, setLang] = useState<Lang>("pt");
 
@@ -142,10 +139,7 @@ export function LandingPage() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setActiveSection(entry.target.id);
-            if (entry.target.id === "contacto" && !promoDismissed) setPromoVisible(true);
-          }
+          if (entry.isIntersecting) setActiveSection(entry.target.id);
         });
       },
       { rootMargin: "-45% 0px -45% 0px" },
@@ -155,7 +149,7 @@ export function LandingPage() {
       if (element) observer.observe(element);
     });
     return () => observer.disconnect();
-  }, [t, promoDismissed]);
+  }, [t]);
 
   return (
     <div className="min-h-screen bg-surface text-body">
@@ -259,8 +253,8 @@ export function LandingPage() {
               transition={{ duration: 0.7 }}
               className="flex max-w-3xl flex-col items-start text-left"
             >
-              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-gold-400/40 bg-gold-400/10 px-4 py-1.5 text-xs tracking-wide text-gold-200 backdrop-blur">
-                <Sparkles size={14} />
+              <div className="mb-8 flex items-center gap-4 text-xs font-semibold uppercase tracking-[0.32em] text-gold-200">
+                <span className="h-px w-10 bg-gold-300/70" aria-hidden="true" />
                 {t.hero.badge}
               </div>
               <h1 className="font-serif text-5xl font-medium leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-8xl">
@@ -348,12 +342,11 @@ export function LandingPage() {
                   return (
                     <div
                       key={reason.title}
-                      className="group flex cursor-default flex-col rounded-[1.5rem] border border-white/10 bg-[#0c0a08]/70 p-6 backdrop-blur transition hover:-translate-y-1 hover:border-gold-400/40"
+                      className="group flex cursor-default flex-col border-t border-white/25 bg-[#0c0a08]/45 p-6 backdrop-blur-sm transition hover:border-gold-400/60"
                     >
                       <Icon size={30} strokeWidth={1.25} className="text-gold-300" />
                       <h3 className="mt-5 font-serif text-xl font-medium text-white">{reason.title}</h3>
                       <p className="mt-3 text-sm leading-7 text-stone-400">{reason.text}</p>
-                      <ArrowRight size={18} className="mt-5 text-gold-400 transition group-hover:translate-x-1" />
                     </div>
                   );
                 })}
@@ -381,10 +374,10 @@ export function LandingPage() {
                   setActiveGallery({ images: galleryImageSets[index], ...item });
                   setActiveIndex(0);
                 }}
-                className="mb-4 block w-full overflow-hidden rounded-[1.5rem] border border-line bg-card text-left transition hover:border-gold-400/40"
+                className="mb-4 block w-full overflow-hidden border border-line bg-card text-left transition hover:border-gold-500/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-500"
               >
                 <div className="relative h-72 w-full">
-                  <Image src={galleryImageSets[index][0]} alt={plainText(item.title)} fill className="object-cover transition duration-500 hover:scale-105" />
+                  <Image src={galleryImageSets[index][0]} alt={plainText(item.title)} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition duration-700 hover:scale-[1.025]" />
                 </div>
                 <div className="p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-400">{item.category}</p>
@@ -409,7 +402,7 @@ export function LandingPage() {
               {t.faq.items.map((faq, index) => {
                 const isOpen = openFaq === index;
                 return (
-                  <div key={faq.question} className="rounded-[1.25rem] border border-line bg-card p-4">
+                  <div key={faq.question} className="border-b border-line bg-card px-1 py-5">
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? null : index)}
@@ -427,7 +420,7 @@ export function LandingPage() {
         </section>
 
         <section id="contacto" className="mx-auto max-w-7xl px-6 pb-24 lg:px-8">
-          <div className="grid gap-10 rounded-[2rem] border border-line bg-card p-8 lg:grid-cols-[0.9fr_1.1fr] lg:p-10">
+          <div className="grid gap-12 border-y border-line bg-card px-0 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:px-10 lg:py-16">
             <div>
               <SectionHeading
                 eyebrow={t.contact.eyebrow}
@@ -442,10 +435,10 @@ export function LandingPage() {
                 <div className="flex items-center gap-3"><InstagramIcon size={18} className="text-gold-400" /><span>@quintajazzclube</span></div>
               </div>
               <div className="mt-8 flex gap-3">
-                <a href="https://wa.me/258877490160" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500">
+                <a href="https://wa.me/258877490160" className="inline-flex min-h-12 items-center gap-2 bg-[#29483a] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#203a2f]">
                   <MessageCircle size={16} /> {t.contact.whatsapp}
                 </a>
-                <a href="tel:+258877490160" className="inline-flex items-center gap-2 rounded-full border border-line-strong px-5 py-3 text-sm font-semibold text-strong transition hover:border-gold-400/50 hover:text-gold-400">
+                <a href="tel:+258877490160" className="inline-flex min-h-12 items-center gap-2 border border-line-strong px-5 py-3 text-sm font-semibold text-strong transition hover:border-gold-500 hover:text-gold-600">
                   <Phone size={16} /> {t.contact.call}
                 </a>
               </div>
@@ -455,7 +448,7 @@ export function LandingPage() {
         </section>
       </main>
 
-      <footer className="border-t border-line py-8 pb-28 text-muted">
+      <footer className="border-t border-line py-8 text-muted">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 text-sm lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <p>{t.footer.rights}</p>
           <div className="flex gap-4">
@@ -465,46 +458,6 @@ export function LandingPage() {
           </div>
         </div>
       </footer>
-
-      <AnimatePresence>
-        {promoVisible ? (
-          <motion.div
-            initial={{ y: 120 }}
-            animate={{ y: 0 }}
-            exit={{ y: 120 }}
-            className="fixed inset-x-4 bottom-4 z-50 rounded-2xl border border-line bg-overlay text-body shadow-2xl backdrop-blur lg:inset-x-8"
-          >
-            <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-5 py-3 text-sm lg:justify-between">
-              <p className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-field text-gold-400">
-                  <CalendarDays size={18} />
-                </span>
-                <span><span className="font-semibold text-gold-400">{t.promo.leadStrong}</span>{t.promo.leadRest}</span>
-              </p>
-              <p className="hidden items-center gap-2 md:flex">
-                <span>{t.promo.visits}</span>
-                <span className="rounded-full bg-field px-3 py-1 text-xs font-semibold text-body">{t.promo.chip}</span>
-              </p>
-              <div className="flex items-center gap-3">
-                <a href="#contacto" className="rounded-xl bg-gold-400 px-4 py-2 text-xs font-semibold text-stone-950 transition hover:bg-gold-300">
-                  {t.promo.cta}
-                </a>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setPromoVisible(false);
-                    setPromoDismissed(true);
-                  }}
-                  aria-label={t.promo.close}
-                  className="rounded-full p-1 text-faint transition hover:text-strong"
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
 
       <AnimatePresence>
         {activeGallery ? (
