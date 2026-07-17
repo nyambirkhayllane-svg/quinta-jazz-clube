@@ -6,26 +6,48 @@ import {
   ArrowRight,
   CalendarDays,
   ChevronDown,
-  Flower2,
+  KeyRound,
   MapPin,
   Menu,
   MessageCircle,
-  Music4,
   Palette,
-  PartyPopper,
   Phone,
-  Play,
-  Search,
   Sparkles,
-  Star,
-  Users,
   X,
 } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { AboutSection } from "@/components/about-section";
 import { BackToTop } from "@/components/back-to-top";
 import { ContactForm } from "@/components/contact-form";
 import { SectionHeading } from "@/components/section-heading";
+import { StatsBar } from "@/components/stats-bar";
+import { translations, type Lang } from "@/lib/translations";
+
+// lucide has no saxophone icon; custom glyph drawn in the same stroke style
+function SaxophoneIcon({ size = 24, className }: { size?: number; className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+    >
+      <path d="M2.8 5.2l2.7-1.1" />
+      <path d="M5.5 4.1C8 2.6 10.8 3.4 11.3 6.2l1.3 8.6c.3 2.8.8 4.8 2.7 5.1 2.1.3 3.3-1.6 3-4l-.6-4.4" />
+      <path d="M15.9 11l4 1.1" />
+      <path d="M10.9 8.4h1.6" />
+      <path d="M11.3 11h1.6" />
+      <path d="M11.7 13.6h1.6" />
+    </svg>
+  );
+}
 
 // lucide-react removed brand icons; same glyph inlined from the old Instagram icon
 function InstagramIcon({ size = 24, className }: { size?: number; className?: string }) {
@@ -49,196 +71,150 @@ function InstagramIcon({ size = 24, className }: { size?: number; className?: st
   );
 }
 
-const services = [
-  { title: "Casamentos", description: "Celebrações elegantes com decoração sob medida e gestão integral." },
-  { title: "Aniversários", description: "Festas memoráveis, ricas em estilo, gastronomia e ambiente premium." },
-  { title: "Eventos Corporativos", description: "Reuniões, jantares e conferências com experiência de alto nível." },
-  { title: "Festas Privadas", description: "Ambientes exclusivos para cada ocasião especial." },
-  { title: "Decoração Personalizada", description: "Floral, mobiliário e composição visual assinada para cada evento." },
-  { title: "Música & Entretenimento", description: "Performances e playlists cuidadosamente seleccionadas para o momento." },
+// One set of photos per gallery category; the first photo is the card cover.
+const galleryImageSets = [
+  [
+    "/images/casamento-5.jpg",
+    "/images/casamento-6.jpg",
+    "/images/casamento-7.png",
+    "/images/casamento-8.png",
+    "/images/casamento-3.png",
+    "/images/casamento-1.png",
+    "/images/casamento-4.jpg",
+  ],
+  [
+    "/images/musica-7.png",
+    "/images/musica-3.png",
+    "/images/musica-5.png",
+    "/images/musica-6.png",
+    "/images/musica-2.png",
+    "/images/musica-9.png",
+    "/images/musica-10.png",
+  ],
+  [
+    "/images/festa-4.jpg",
+    "/images/festa-1.jpg",
+    "/images/festa-2.jpg",
+    "/images/festa-3.jpg",
+    "/images/festa-5.jpg",
+    "/images/festa-6.jpg",
+    "/images/festa-7.jpg",
+    "/images/festa-8.jpg",
+    "/images/festa-9.jpg",
+    "/images/festa-10.jpg",
+    "/images/festa-11.png",
+    "/images/festa-12.png",
+  ],
+  ["/images/festa-7.jpg", "/images/festa-8.jpg", "/images/festa-10.jpg"],
 ];
 
-const galleryImages = [
-  {
-    src: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=900&q=80",
-    title: "Casamento ao entardecer",
-    category: "Casamentos",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?auto=format&fit=crop&w=900&q=80",
-    title: "Decoração floral sofisticada",
-    category: "Decoração Floral",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc?auto=format&fit=crop&w=900&q=80",
-    title: "Mesa de jantar premium",
-    category: "Mesas Decoradas",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=900&q=80",
-    title: "Evento corporativo",
-    category: "Eventos Corporativos",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=900&q=80",
-    title: "Espaço exterior acolhedor",
-    category: "Espaços Exteriores",
-  },
-  {
-    src: "https://images.unsplash.com/photo-1505373877841-8d25f7d46678?auto=format&fit=crop&w=900&q=80",
-    title: "Festa temática nocturna",
-    category: "Eventos Noturnos",
-  },
-];
+const reasonIcons = [Armchair, Palette, KeyRound, MapPin];
 
-const reasons = [
-  {
-    icon: Armchair,
-    title: "Espaço sofisticado",
-    text: "Um ambiente elegante, acolhedor e preparado para experiências memoráveis.",
-  },
-  {
-    icon: Palette,
-    title: "Decoração personalizada",
-    text: "Cada detalhe é desenhado para refletir a sua identidade e estilo.",
-  },
-  {
-    icon: Users,
-    title: "Equipa especializada",
-    text: "Profissionais com visão artística, organização impecável e atendimento premium.",
-  },
-  {
-    icon: MapPin,
-    title: "Localização privilegiada",
-    text: "Acesso fácil e envolvente, ideal para eventos que querem destacar-se.",
-  },
-];
+// Renders **segments** of a translation string in bold.
+function renderBold(text: string) {
+  return text.split(/\*\*(.+?)\*\*/g).map((part, index) =>
+    index % 2 === 1 ? <strong key={index} className="font-bold">{part}</strong> : part,
+  );
+}
 
-const processSteps = [
-  "Solicitar orçamento",
-  "Agendar visita",
-  "Planeamento personalizado",
-  "Preparação da decoração",
-  "Realização do evento",
-];
-
-const testimonials = [
-  {
-    quote: "Uma experiência impecável, do primeiro contacto à última música. Cada detalhe foi perfeito.",
-    author: "Marta & João",
-    event: "Casamento de Verão",
-  },
-  {
-    quote: "O espaço transmite luxo e acolhimento. A equipa superou todas as nossas expectativas.",
-    author: "Clara Pereira",
-    event: "Evento Corporativo",
-  },
-  {
-    quote: "A decoração estava deslumbrante e a organização foi exemplar. Recomendo sem reservas.",
-    author: "Rui Santos",
-    event: "Aniversário 40 anos",
-  },
-];
-
-const faqs = [
-  {
-    question: "Quais os tipos de eventos que acolhem?",
-    answer: "Casamentos, festas privadas, eventos corporativos, aniversários e celebrações especiais.",
-  },
-  {
-    question: "É possível personalizar a decoração?",
-    answer: "Sim. Trabalhamos com conceitos sob medida, florais, mobiliário e iluminação para cada projeto.",
-  },
-  {
-    question: "Como funciona o processo de reserva?",
-    answer: "Começa pelo pedido de orçamento, seguido de visita ao espaço, definição do plano e confirmação da data.",
-  },
-  {
-    question: "Há disponibilidade para eventos em noites e fins de semana?",
-    answer: "Sim. A nossa agenda é preparada para acolher eventos premium em diferentes períodos do ano.",
-  },
-];
-
-const navLinks = [
-  ["#sobre", "Sobre"],
-  ["#servicos", "Serviços"],
-  ["#galeria", "Galeria"],
-  ["#faq", "FAQ"],
-  ["#contacto", "Contacto"],
-] as const;
-
-const dotSections = [
-  ["hero", "Início"],
-  ["sobre", "Sobre"],
-  ["servicos", "Serviços"],
-  ["galeria", "Galeria"],
-  ["diferenciais", "Diferenciais"],
-  ["contacto", "Contacto"],
-] as const;
+function plainText(text: string) {
+  return text.replace(/\*\*/g, "");
+}
 
 export function LandingPage() {
-  const [activeImage, setActiveImage] = useState<(typeof galleryImages)[number] | null>(null);
+  const [activeGallery, setActiveGallery] = useState<{ images: string[]; title: string; category: string } | null>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [promoVisible, setPromoVisible] = useState(true);
+  const [promoVisible, setPromoVisible] = useState(false);
+  const [promoDismissed, setPromoDismissed] = useState(false);
   const [activeSection, setActiveSection] = useState("hero");
+  const [lang, setLang] = useState<Lang>("pt");
+
+  const t = translations[lang];
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    localStorage.setItem("qjc-lang", lang);
+  }, [lang]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+            if (entry.target.id === "contacto" && !promoDismissed) setPromoVisible(true);
+          }
         });
       },
       { rootMargin: "-45% 0px -45% 0px" },
     );
-    dotSections.forEach(([id]) => {
+    t.dots.forEach(([id]) => {
       const element = document.getElementById(id);
       if (element) observer.observe(element);
     });
     return () => observer.disconnect();
-  }, []);
+  }, [t, promoDismissed]);
 
   return (
-    <div className="min-h-screen bg-[#0c0a08] text-stone-200">
-      <header className="sticky top-0 z-50 border-b border-white/5 bg-[#0c0a08]/90 backdrop-blur-xl">
+    <div className="min-h-screen bg-surface text-body">
+      <header className="sticky top-0 z-50 border-b border-line bg-surface/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 lg:px-8">
           <a href="#hero" className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-gold-400/50 text-gold-300">
-              <Music4 size={20} />
+            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-gold-400/50 text-gold-400">
+              <SaxophoneIcon size={20} />
             </span>
-            <span className="font-serif text-lg font-medium tracking-wide text-white sm:text-2xl">
+            <span className="font-serif text-lg font-medium tracking-wide text-strong sm:text-2xl">
               Quinta Jazz Clube
             </span>
           </a>
-          <nav className="hidden items-center gap-8 text-sm font-medium text-stone-200 lg:flex">
-            {navLinks.map(([href, label]) => (
-              <a key={href} href={href} className="transition hover:text-gold-300">{label}</a>
+          <nav className="hidden items-center gap-8 text-sm font-medium text-body lg:flex">
+            {t.nav.links.map(([href, label]) => (
+              <a key={href} href={href} className="transition hover:text-gold-400">{label}</a>
             ))}
           </nav>
-          <div className="hidden items-center gap-5 lg:flex">
-            <a href="tel:+351213456789" className="flex items-center gap-2 text-sm font-semibold text-white transition hover:text-gold-300">
+          <div className="hidden items-center gap-4 lg:flex">
+            <button
+              type="button"
+              onClick={() => setLang(lang === "pt" ? "en" : "pt")}
+              aria-label={t.nav.switchLang}
+              className="rounded-full border border-line-strong px-3 py-2 text-xs font-bold tracking-widest text-strong transition hover:border-gold-400/60 hover:text-gold-400"
+            >
+              {lang === "pt" ? "EN" : "PT"}
+            </button>
+            <a href="tel:+258877490160" className="flex items-center gap-2 text-sm font-semibold text-strong transition hover:text-gold-400">
               <Phone size={16} className="text-gold-400" />
-              +351 213 456 789
+              +258 87 749 0160
             </a>
             <a href="#contacto" className="inline-flex items-center gap-2 rounded-xl bg-gold-400 px-5 py-2.5 text-sm font-semibold text-stone-950 transition hover:bg-gold-300">
-              Solicitar orçamento
+              {t.nav.cta}
               <ArrowRight size={16} />
             </a>
           </div>
-          <button
-            type="button"
-            onClick={() => setMobileMenuOpen((value) => !value)}
-            className="rounded-full border border-white/15 p-2 text-stone-200 lg:hidden"
-            aria-label={mobileMenuOpen ? "Fechar menu" : "Abrir menu"}
-          >
-            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-          </button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setLang(lang === "pt" ? "en" : "pt")}
+              aria-label={t.nav.switchLang}
+              className="rounded-full border border-line-strong px-2.5 py-2 text-xs font-bold tracking-widest text-strong"
+            >
+              {lang === "pt" ? "EN" : "PT"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen((value) => !value)}
+              className="rounded-full border border-line-strong p-2 text-strong"
+              aria-label={mobileMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
+            >
+              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
         </div>
         {mobileMenuOpen ? (
-          <div className="border-t border-white/10 bg-[#0c0a08] px-6 py-4 lg:hidden">
-            <div className="flex flex-col gap-3 text-sm font-medium text-stone-200">
-              {navLinks.map(([href, label]) => (
+          <div className="border-t border-line bg-surface px-6 py-4 lg:hidden">
+            <div className="flex flex-col gap-3 text-sm font-medium text-body">
+              {t.nav.links.map(([href, label]) => (
                 <a key={href} href={href} onClick={() => setMobileMenuOpen(false)}>{label}</a>
               ))}
               <a
@@ -246,7 +222,7 @@ export function LandingPage() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="mt-2 rounded-xl bg-gold-400 px-5 py-2.5 text-center font-semibold text-stone-950"
               >
-                Solicitar orçamento
+                {t.nav.cta}
               </a>
             </div>
           </div>
@@ -254,13 +230,13 @@ export function LandingPage() {
       </header>
 
       <div className="fixed right-5 top-1/2 z-40 hidden -translate-y-1/2 flex-col gap-3 xl:flex">
-        {dotSections.map(([id, label]) => (
+        {t.dots.map(([id, label]) => (
           <a
             key={id}
             href={`#${id}`}
             aria-label={label}
             className={`h-2 w-2 rounded-full transition ${
-              activeSection === id ? "scale-150 bg-gold-400" : "bg-white/25 hover:bg-white/50"
+              activeSection === id ? "scale-150 bg-gold-400" : "bg-strong/20 hover:bg-strong/40"
             }`}
           />
         ))}
@@ -269,205 +245,87 @@ export function LandingPage() {
       <main>
         <section id="hero" className="relative isolate overflow-hidden">
           <Image
-            src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?auto=format&fit=crop&w=1800&q=80"
-            alt="Interior elegante da Quinta Jazz Clube para eventos premium"
+            src="/images/quinta-cerimonia.jpg"
+            alt={t.hero.imageAlt}
             fill
             priority
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(12,10,8,0.92)_0%,rgba(12,10,8,0.68)_50%,rgba(12,10,8,0.96)_100%)]" />
-          <div className="relative mx-auto flex min-h-[88vh] max-w-7xl flex-col items-center justify-center px-6 py-24 text-center lg:px-8">
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(13,19,16,0.94)_0%,rgba(13,19,16,0.72)_48%,rgba(13,19,16,0.16)_100%)]" />
+          <div className="relative mx-auto flex min-h-[92svh] max-w-7xl flex-col justify-center px-6 pb-16 pt-24 lg:px-8">
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="flex max-w-4xl flex-col items-center"
+              className="flex max-w-3xl flex-col items-start text-left"
             >
-              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-gold-400/40 bg-gold-400/10 px-5 py-2 text-sm text-gold-200 backdrop-blur">
-                <Sparkles size={16} />
-                O palco dos seus melhores momentos
+              <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-gold-400/40 bg-gold-400/10 px-4 py-1.5 text-xs tracking-wide text-gold-200 backdrop-blur">
+                <Sparkles size={14} />
+                {t.hero.badge}
               </div>
-              <h1 className="font-serif text-4xl font-medium leading-tight text-white sm:text-6xl lg:text-7xl">
-                O espaço. A música.
+              <h1 className="font-serif text-5xl font-medium leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-8xl">
+                {t.hero.titleLine1}
                 <br />
-                A sua <em className="italic text-gold-400">celebração</em>.
+                {t.hero.titleLine2Pre}
+                <em className="italic text-gold-400">{t.hero.titleAccent}</em>.
               </h1>
-              <p className="mt-8 max-w-2xl text-lg leading-8 text-stone-300 sm:text-xl">
-                Deixe de imaginar o evento perfeito. Na Quinta Jazz Clube encontra o cenário,
-                a decoração, a gastronomia e a banda — tudo num só lugar, com uma equipa
-                dedicada do primeiro brinde à última música.
+              <p className="mt-8 max-w-xl text-base leading-relaxed text-stone-300 sm:text-lg">
+                {t.hero.paragraph}
+              </p>
+              <div className="mt-10 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+                <a href="#contacto" className="inline-flex min-h-12 items-center justify-center gap-3 bg-gold-400 px-7 py-3 text-sm font-semibold text-stone-950 transition hover:bg-gold-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-300">
+                  {lang === "pt" ? "Agendar uma visita" : "Schedule a visit"}<ArrowRight size={16} />
+                </a>
+                <a href="https://wa.me/258877490160" className="inline-flex min-h-12 items-center justify-center gap-3 border border-white/40 px-7 py-3 text-sm font-semibold text-white transition hover:border-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
+                  <MessageCircle size={17} /> WhatsApp
+                </a>
+              </div>
+              <p className="mt-6 text-xs font-medium uppercase tracking-[0.2em] text-stone-300">
+                {lang === "pt" ? "Matola · Casamentos · Celebrações · Eventos corporativos" : "Matola · Weddings · Celebrations · Corporate events"}
               </p>
             </motion.div>
 
-            <motion.form
+            <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.15 }}
-              className="mt-12 flex w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/5 shadow-2xl backdrop-blur-xl sm:h-20 sm:flex-row sm:items-stretch sm:rounded-full"
-              onSubmit={(event) => {
-                event.preventDefault();
-                document.querySelector("#contacto")?.scrollIntoView({ behavior: "smooth" });
-              }}
+              className="mt-16 w-full max-w-4xl lg:mt-20"
             >
-              <label className="flex flex-1 items-center gap-3 border-b border-white/10 px-6 py-4 text-left sm:border-b-0 sm:border-r sm:py-0">
-                <PartyPopper size={20} className="shrink-0 text-gold-400" />
-                <span className="flex w-full flex-col">
-                  <span className="text-sm font-semibold text-white">Tipo de evento</span>
-                  <select className="w-full bg-transparent text-sm text-stone-400 outline-none [color-scheme:dark]" defaultValue="">
-                    <option value="" disabled>Qual é a ocasião?</option>
-                    <option>Casamento</option>
-                    <option>Aniversário</option>
-                    <option>Evento corporativo</option>
-                    <option>Festa privada</option>
-                  </select>
-                </span>
-              </label>
-              <label className="flex flex-1 items-center gap-3 border-b border-white/10 px-6 py-4 text-left sm:border-b-0 sm:border-r sm:py-0">
-                <Users size={20} className="shrink-0 text-gold-400" />
-                <span className="flex w-full flex-col">
-                  <span className="text-sm font-semibold text-white">Convidados</span>
-                  <input
-                    type="number"
-                    min={1}
-                    placeholder="Quantas pessoas?"
-                    className="w-full bg-transparent text-sm text-stone-400 outline-none [color-scheme:dark] placeholder:text-stone-500"
-                  />
-                </span>
-              </label>
-              <label className="flex flex-1 items-center gap-3 px-6 py-4 text-left sm:py-0">
-                <CalendarDays size={20} className="shrink-0 text-gold-400" />
-                <span className="flex w-full flex-col">
-                  <span className="text-sm font-semibold text-white">Data</span>
-                  <input
-                    type="date"
-                    className="w-full bg-transparent text-sm text-stone-400 outline-none [color-scheme:dark]"
-                  />
-                </span>
-              </label>
-              <div className="flex items-center justify-center p-3 sm:pr-3">
-                <button
-                  type="submit"
-                  aria-label="Pedir orçamento"
-                  className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-gold-400 px-6 text-sm font-semibold text-stone-950 transition hover:bg-gold-300 sm:h-14 sm:w-14 sm:px-0"
-                >
-                  <Search size={20} />
-                  <span className="sm:hidden">Pedir orçamento</span>
-                </button>
-              </div>
-            </motion.form>
-
-            <motion.a
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.7, delay: 0.3 }}
-              href="#sobre"
-              className="mt-8 inline-flex items-center gap-2 text-sm font-semibold text-stone-300 transition hover:text-gold-300"
-            >
-              ou conheça primeiro o espaço
-              <ArrowRight size={16} />
-            </motion.a>
+              <StatsBar stats={t.hero.stats} />
+            </motion.div>
           </div>
         </section>
 
-        <section id="sobre" className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
-            <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
-              <SectionHeading
-                eyebrow="Sobre nós"
-                title="Elegância, acolhimento e organização"
-                accent="impecável"
-                description="A Quinta Jazz Clube é um endereço de referência para eventos que exigem sofisticação, atenção aos detalhes e uma experiência verdadeiramente memorável."
-              />
-              <div className="mt-8 grid gap-5 sm:grid-cols-2">
+        <AboutSection t={t.about} />
+
+        <section className="bg-surface px-6 py-24 lg:px-8 lg:py-32" aria-labelledby="experience-title">
+          <div className="mx-auto max-w-7xl">
+            <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-gold-500">{lang === "pt" ? "Uma experiência completa" : "A complete experience"}</p>
+                <h2 id="experience-title" className="mt-6 max-w-[12ch] font-serif text-4xl leading-[1.08] text-strong sm:text-5xl">{lang === "pt" ? "Do primeiro encontro ao último brinde." : "From the first meeting to the final toast."}</h2>
+              </div>
+              <div className="grid gap-px border-y border-line sm:grid-cols-3 sm:border-x">
                 {[
-                  ["Elegância", "Decoração e ambiente que elevam cada detalhe."],
-                  ["Atendimento personalizado", "Uma equipa dedicada a cada fase do evento."],
-                  ["Organização completa", "Planeamento, execução e acompanhamento premium."],
-                  ["Experiência única", "Momento inesquecível para convidados e anfitriões."],
-                ].map(([title, text]) => (
-                  <div key={title} className="rounded-3xl border border-white/10 bg-white/[0.03] p-5">
-                    <h3 className="font-serif text-lg font-medium text-white">{title}</h3>
-                    <p className="mt-2 text-sm leading-7 text-stone-400">{text}</p>
-                  </div>
+                  ["01", lang === "pt" ? "Conhecer" : "Discover", lang === "pt" ? "Uma visita privada para sentir o espaço e partilhar a sua visão." : "A private visit to experience the venue and share your vision."],
+                  ["02", lang === "pt" ? "Desenhar" : "Design", lang === "pt" ? "Ambiente, menu e produção pensados em conjunto, detalhe a detalhe." : "Setting, menu and production considered together, detail by detail."],
+                  ["03", lang === "pt" ? "Celebrar" : "Celebrate", lang === "pt" ? "Uma equipa presente para que possa viver o momento com tranquilidade." : "A present team so you can enjoy the moment with complete peace of mind."],
+                ].map(([number, title, copy]) => (
+                  <article key={number} className="border-line px-6 py-8 sm:border-r sm:last:border-r-0 lg:px-8 lg:py-10">
+                    <span className="font-serif text-sm italic text-gold-500">{number}</span>
+                    <h3 className="mt-8 font-serif text-2xl text-strong">{title}</h3>
+                    <p className="mt-4 text-sm leading-7 text-muted">{copy}</p>
+                  </article>
                 ))}
               </div>
-            </motion.div>
-
-            <motion.div initial={{ opacity: 0, scale: 0.97 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="overflow-hidden rounded-[2rem] border border-gold-400/20 bg-white/[0.03] p-2">
-              <Image
-                src="https://images.unsplash.com/photo-1469371670807-013ccf25f16a?auto=format&fit=crop&w=1200&q=80"
-                alt="Equipe a preparar um evento em ambiente premium"
-                width={800}
-                height={900}
-                className="h-[540px] w-full rounded-[1.5rem] object-cover"
-              />
-            </motion.div>
-          </div>
-        </section>
-
-        <section id="servicos" className="border-y border-white/5 bg-[#100e0b] py-20">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <SectionHeading
-              eyebrow="Serviços"
-              title="Cada celebração merece um conceito"
-              accent="exclusivo"
-              description="Da cerimónia ao final da noite, criamos experiências refinadas e personalizadas para todos os tipos de eventos."
-            />
-            <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {services.map((service, index) => (
-                <motion.article
-                  key={service.title}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.45, delay: index * 0.05 }}
-                  className="group rounded-[1.75rem] border border-white/10 bg-white/[0.03] p-6 transition hover:border-gold-400/40"
-                >
-                  <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-gold-400/40 text-gold-300">
-                    <Flower2 size={20} />
-                  </div>
-                  <h3 className="font-serif text-xl font-medium text-white">{service.title}</h3>
-                  <p className="mt-3 text-sm leading-7 text-stone-400">{service.description}</p>
-                </motion.article>
-              ))}
             </div>
-          </div>
-        </section>
-
-        <section id="galeria" className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-          <SectionHeading
-            eyebrow="Galeria"
-            title="Um espaço que se transforma em cada"
-            accent="ocasião"
-            description="Explore momentos já vividos em ambientes sofisticados, elegantes e cuidadosamente preparados."
-          />
-          <div className="mt-12 columns-1 gap-4 md:columns-2 xl:columns-3">
-            {galleryImages.map((image, index) => (
-              <motion.button
-                key={image.src}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: index * 0.04 }}
-                onClick={() => setActiveImage(image)}
-                className="mb-4 block w-full overflow-hidden rounded-[1.5rem] border border-white/10 bg-white/[0.03] text-left transition hover:border-gold-400/40"
-              >
-                <div className="relative h-72 w-full">
-                  <Image src={image.src} alt={image.title} fill className="object-cover transition duration-500 hover:scale-105" />
-                </div>
-                <div className="p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-400">{image.category}</p>
-                  <h3 className="mt-2 font-serif text-lg font-medium text-white">{image.title}</h3>
-                </div>
-              </motion.button>
-            ))}
           </div>
         </section>
 
         <section id="diferenciais" className="relative isolate overflow-hidden py-24">
           <Image
-            src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&w=1800&q=80"
-            alt="Piano e contrabaixo em ambiente de clube de jazz"
+            src="/images/musica-7.png"
+            alt={t.why.imageAlt}
             fill
             className="object-cover"
           />
@@ -476,32 +334,27 @@ export function LandingPage() {
             <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
               <div>
                 <SectionHeading
-                  eyebrow="Porque escolher"
-                  title="Diferenciais que fazem a"
-                  accent="diferença"
-                  description="Do conceito à execução, cada detalhe é pensado para oferecer uma experiência premium e sem stress."
+                  onImage
+                  eyebrow={t.why.eyebrow}
+                  title={t.why.title}
+                  accent={t.why.accent}
+                  description={t.why.description}
                 />
-                <a href="#galeria" className="group mt-10 inline-flex items-center gap-4 text-sm font-semibold text-white">
-                  <span className="flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur transition group-hover:border-gold-400/60 group-hover:text-gold-300">
-                    <Play size={18} fill="currentColor" />
-                  </span>
-                  Ver o espaço
-                </a>
+                <a href="#galeria" className="mt-10 inline-flex items-center gap-3 border-b border-gold-400 pb-2 text-sm font-semibold text-white transition hover:text-gold-300">{t.why.watch}<ArrowRight size={16} /></a>
               </div>
               <div className="grid gap-5 sm:grid-cols-2">
-                {reasons.map((reason) => {
-                  const Icon = reason.icon;
+                {t.why.items.map((reason, index) => {
+                  const Icon = reasonIcons[index];
                   return (
-                    <a
+                    <div
                       key={reason.title}
-                      href="#contacto"
-                      className="group flex flex-col rounded-[1.5rem] border border-white/10 bg-[#0c0a08]/70 p-6 backdrop-blur transition hover:border-gold-400/40"
+                      className="group flex cursor-default flex-col rounded-[1.5rem] border border-white/10 bg-[#0c0a08]/70 p-6 backdrop-blur transition hover:-translate-y-1 hover:border-gold-400/40"
                     >
                       <Icon size={30} strokeWidth={1.25} className="text-gold-300" />
                       <h3 className="mt-5 font-serif text-xl font-medium text-white">{reason.title}</h3>
                       <p className="mt-3 text-sm leading-7 text-stone-400">{reason.text}</p>
                       <ArrowRight size={18} className="mt-5 text-gold-400 transition group-hover:translate-x-1" />
-                    </a>
+                    </div>
                   );
                 })}
               </div>
@@ -509,47 +362,36 @@ export function LandingPage() {
           </div>
         </section>
 
-        <section className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
+        <section id="galeria" className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
           <SectionHeading
-            eyebrow="Processo"
-            title="Da primeira conversa à realização do"
-            accent="evento"
-            description="Um fluxo claro, elegante e pensado para que cada etapa seja simples e tranquila."
+            eyebrow={t.gallery.eyebrow}
+            title={t.gallery.title}
+            accent={t.gallery.accent}
+            description={t.gallery.description}
           />
-          <div className="mt-12 grid gap-6 md:grid-cols-2 xl:grid-cols-5">
-            {processSteps.map((step, index) => (
-              <div key={step} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">
-                <div className="mb-4 text-sm font-semibold uppercase tracking-[0.25em] text-gold-400">0{index + 1}</div>
-                <h3 className="font-serif text-lg font-medium text-white">{step}</h3>
-              </div>
-            ))}
-          </div>
-        </section>
-
-        <section className="border-y border-white/5 bg-[#100e0b] py-20">
-          <div className="mx-auto max-w-7xl px-6 lg:px-8">
-            <SectionHeading
-              eyebrow="Depoimentos"
-              title="Clientes que confiaram em"
-              accent="nós"
-              description="A qualidade da experiência é o melhor testemunho da nossa proposta."
-            />
-            <div className="mt-12 grid gap-6 lg:grid-cols-3">
-              {testimonials.map((item) => (
-                <div key={item.author} className="rounded-[1.5rem] border border-white/10 bg-white/[0.03] p-6">
-                  <div className="mb-4 flex gap-1 text-gold-400">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <Star key={index} size={16} fill="currentColor" />
-                    ))}
-                  </div>
-                  <p className="text-sm leading-8 text-stone-300">“{item.quote}”</p>
-                  <div className="mt-6">
-                    <p className="font-serif font-medium text-white">{item.author}</p>
-                    <p className="text-sm text-stone-500">{item.event}</p>
-                  </div>
+          <div className="mt-12 columns-1 gap-4 md:columns-2">
+            {t.gallery.items.map((item, index) => (
+              <motion.button
+                key={galleryImageSets[index][0]}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.45, delay: index * 0.04 }}
+                onClick={() => {
+                  setActiveGallery({ images: galleryImageSets[index], ...item });
+                  setActiveIndex(0);
+                }}
+                className="mb-4 block w-full overflow-hidden rounded-[1.5rem] border border-line bg-card text-left transition hover:border-gold-400/40"
+              >
+                <div className="relative h-72 w-full">
+                  <Image src={galleryImageSets[index][0]} alt={plainText(item.title)} fill className="object-cover transition duration-500 hover:scale-105" />
                 </div>
-              ))}
-            </div>
+                <div className="p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-400">{item.category}</p>
+                  <h3 className="mt-2 font-serif text-lg font-medium text-strong">{renderBold(item.title)}</h3>
+                </div>
+              </motion.button>
+            ))}
           </div>
         </section>
 
@@ -557,26 +399,26 @@ export function LandingPage() {
           <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
             <div>
               <SectionHeading
-                eyebrow="FAQ"
-                title="Perguntas"
-                accent="frequentes"
-                description="Informações úteis para quem quer explorar a Quinta Jazz Clube e planejar o próximo evento."
+                eyebrow={t.faq.eyebrow}
+                title={t.faq.title}
+                accent={t.faq.accent}
+                description={t.faq.description}
               />
             </div>
             <div className="space-y-4">
-              {faqs.map((faq, index) => {
+              {t.faq.items.map((faq, index) => {
                 const isOpen = openFaq === index;
                 return (
-                  <div key={faq.question} className="rounded-[1.25rem] border border-white/10 bg-white/[0.03] p-4">
+                  <div key={faq.question} className="rounded-[1.25rem] border border-line bg-card p-4">
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? null : index)}
                       className="flex w-full items-center justify-between text-left"
                     >
-                      <span className="font-semibold text-white">{faq.question}</span>
+                      <span className="font-semibold text-strong">{faq.question}</span>
                       <ChevronDown className={`text-gold-400 transition ${isOpen ? "rotate-180" : ""}`} size={18} />
                     </button>
-                    {isOpen ? <p className="mt-3 text-sm leading-7 text-stone-400">{faq.answer}</p> : null}
+                    {isOpen ? <p className="mt-3 text-sm leading-7 text-muted">{faq.answer}</p> : null}
                   </div>
                 );
               })}
@@ -585,41 +427,41 @@ export function LandingPage() {
         </section>
 
         <section id="contacto" className="mx-auto max-w-7xl px-6 pb-24 lg:px-8">
-          <div className="grid gap-10 rounded-[2rem] border border-white/10 bg-white/[0.03] p-8 lg:grid-cols-[0.9fr_1.1fr] lg:p-10">
+          <div className="grid gap-10 rounded-[2rem] border border-line bg-card p-8 lg:grid-cols-[0.9fr_1.1fr] lg:p-10">
             <div>
               <SectionHeading
-                eyebrow="Contacto"
-                title="Vamos criar o evento da sua"
-                accent="vida"
-                description="Partilhe as suas ideias e deixe-nos transformar a sua visão numa experiência única e sofisticada."
+                eyebrow={t.contact.eyebrow}
+                title={t.contact.title}
+                accent={t.contact.accent}
+                description={t.contact.description}
               />
-              <div className="mt-8 space-y-4 text-sm text-stone-300">
-                <div className="flex items-center gap-3"><MapPin size={18} className="text-gold-400" /><span>Quinta Jazz Clube, Lisboa</span></div>
-                <div className="flex items-center gap-3"><Phone size={18} className="text-gold-400" /><span>+351 213 456 789</span></div>
-                <div className="flex items-center gap-3"><CalendarDays size={18} className="text-gold-400" /><span>Seg-Sex • 09:00 - 20:00</span></div>
+              <div className="mt-8 space-y-4 text-sm text-body">
+                <div className="flex items-center gap-3"><MapPin size={18} className="text-gold-400" /><span>{t.contact.location}</span></div>
+                <div className="flex items-center gap-3"><Phone size={18} className="text-gold-400" /><span>+258 87 749 0160</span></div>
+                <div className="flex items-center gap-3"><CalendarDays size={18} className="text-gold-400" /><span>{t.contact.hours}</span></div>
                 <div className="flex items-center gap-3"><InstagramIcon size={18} className="text-gold-400" /><span>@quintajazzclube</span></div>
               </div>
               <div className="mt-8 flex gap-3">
-                <a href="https://wa.me/351213456789" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500">
-                  <MessageCircle size={16} /> WhatsApp
+                <a href="https://wa.me/258877490160" className="inline-flex items-center gap-2 rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-emerald-500">
+                  <MessageCircle size={16} /> {t.contact.whatsapp}
                 </a>
-                <a href="tel:+351213456789" className="inline-flex items-center gap-2 rounded-full border border-white/20 px-5 py-3 text-sm font-semibold text-white transition hover:border-gold-400/50 hover:text-gold-300">
-                  <Phone size={16} /> Ligar agora
+                <a href="tel:+258877490160" className="inline-flex items-center gap-2 rounded-full border border-line-strong px-5 py-3 text-sm font-semibold text-strong transition hover:border-gold-400/50 hover:text-gold-400">
+                  <Phone size={16} /> {t.contact.call}
                 </a>
               </div>
             </div>
-            <ContactForm />
+            <ContactForm key={lang} t={t.form} />
           </div>
         </section>
       </main>
 
-      <footer className="border-t border-white/10 py-8 pb-28 text-stone-400">
+      <footer className="border-t border-line py-8 pb-28 text-muted">
         <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 text-sm lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <p>© 2026 Quinta Jazz Clube. Todos os direitos reservados.</p>
+          <p>{t.footer.rights}</p>
           <div className="flex gap-4">
-            <a href="#hero" className="transition hover:text-gold-300">Início</a>
-            <a href="#servicos" className="transition hover:text-gold-300">Serviços</a>
-            <a href="#contacto" className="transition hover:text-gold-300">Contacto</a>
+            {t.footer.links.map(([href, label]) => (
+              <a key={href} href={href} className="transition hover:text-gold-400">{label}</a>
+            ))}
           </div>
         </div>
       </footer>
@@ -630,28 +472,31 @@ export function LandingPage() {
             initial={{ y: 120 }}
             animate={{ y: 0 }}
             exit={{ y: 120 }}
-            className="fixed inset-x-4 bottom-4 z-50 rounded-2xl border border-white/10 bg-[#12100c]/95 text-stone-300 shadow-2xl backdrop-blur lg:inset-x-8"
+            className="fixed inset-x-4 bottom-4 z-50 rounded-2xl border border-line bg-overlay text-body shadow-2xl backdrop-blur lg:inset-x-8"
           >
             <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-2 px-5 py-3 text-sm lg:justify-between">
               <p className="flex items-center gap-3">
-                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/5 text-gold-300">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-field text-gold-400">
                   <CalendarDays size={18} />
                 </span>
-                <span><span className="font-semibold text-gold-300">Época baixa 2026</span> — eventos de Nov a Mar com condições especiais</span>
+                <span><span className="font-semibold text-gold-400">{t.promo.leadStrong}</span>{t.promo.leadRest}</span>
               </p>
               <p className="hidden items-center gap-2 md:flex">
-                <span>Visitas guiadas todos os sábados</span>
-                <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-stone-200">Lugares limitados</span>
+                <span>{t.promo.visits}</span>
+                <span className="rounded-full bg-field px-3 py-1 text-xs font-semibold text-body">{t.promo.chip}</span>
               </p>
               <div className="flex items-center gap-3">
                 <a href="#contacto" className="rounded-xl bg-gold-400 px-4 py-2 text-xs font-semibold text-stone-950 transition hover:bg-gold-300">
-                  Reservar data →
+                  {t.promo.cta}
                 </a>
                 <button
                   type="button"
-                  onClick={() => setPromoVisible(false)}
-                  aria-label="Fechar promoção"
-                  className="rounded-full p-1 text-stone-500 transition hover:text-white"
+                  onClick={() => {
+                    setPromoVisible(false);
+                    setPromoDismissed(true);
+                  }}
+                  aria-label={t.promo.close}
+                  className="rounded-full p-1 text-faint transition hover:text-strong"
                 >
                   <X size={16} />
                 </button>
@@ -662,26 +507,49 @@ export function LandingPage() {
       </AnimatePresence>
 
       <AnimatePresence>
-        {activeImage ? (
+        {activeGallery ? (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 p-4"
-            onClick={() => setActiveImage(null)}
+            onClick={() => setActiveGallery(null)}
           >
             <motion.div
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
-              className="relative w-full max-w-4xl rounded-[1.75rem] border border-white/15 bg-[#12100c] p-3"
+              className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[1.75rem] border border-white/15 bg-[#12100c] p-3"
               onClick={(event) => event.stopPropagation()}
             >
-              <button type="button" onClick={() => setActiveImage(null)} className="absolute right-4 top-4 z-10 rounded-full bg-black/60 px-3 py-2 text-sm text-white">Fechar</button>
-              <Image src={activeImage.src} alt={activeImage.title} width={1200} height={800} className="max-h-[75vh] w-full rounded-[1.25rem] object-contain" />
+              <button type="button" onClick={() => setActiveGallery(null)} className="absolute right-4 top-4 z-10 rounded-full bg-black/60 px-3 py-2 text-sm text-white">{t.gallery.close}</button>
+              <Image
+                src={activeGallery.images[activeIndex]}
+                alt={`${plainText(activeGallery.title)} — ${activeIndex + 1}`}
+                width={1200}
+                height={800}
+                className="max-h-[62vh] w-full rounded-[1.25rem] object-contain"
+              />
+              {activeGallery.images.length > 1 ? (
+                <div className="mt-3 flex gap-3 overflow-x-auto px-1">
+                  {activeGallery.images.map((src, index) => (
+                    <button
+                      key={src}
+                      type="button"
+                      onClick={() => setActiveIndex(index)}
+                      aria-label={`${plainText(activeGallery.title)} — ${index + 1}`}
+                      className={`relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border-2 transition ${
+                        index === activeIndex ? "border-gold-400" : "border-transparent opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      <Image src={src} alt="" fill className="object-cover" />
+                    </button>
+                  ))}
+                </div>
+              ) : null}
               <div className="px-2 py-4 text-white">
-                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-400">{activeImage.category}</p>
-                <h3 className="mt-2 font-serif text-2xl font-medium">{activeImage.title}</h3>
+                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-400">{activeGallery.category}</p>
+                <h3 className="mt-2 font-serif text-2xl font-medium">{renderBold(activeGallery.title)}</h3>
               </div>
             </motion.div>
           </motion.div>
