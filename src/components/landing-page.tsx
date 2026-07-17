@@ -10,7 +10,7 @@ import { translations, type Lang } from "@/lib/translations";
 
 const copy = {
   pt: {
-    nav: [["#historia", "A nossa história"], ["#jardins", "A Quinta"], ["#galeria", "Álbum"], ["#visita", "Visitar"]],
+    nav: [["#historia", "A nossa história"], ["#galeria", "Álbum"], ["#visita", "Visitar"]],
     visit: "Marcar uma visita",
     menu: "Abrir menu",
     closeMenu: "Fechar menu",
@@ -24,10 +24,6 @@ const copy = {
     story2: "Com os anos, o lugar cresceu com as famílias que aqui regressavam. A música abriu caminho a casamentos, aniversários e encontros entre gerações — sempre com a mesma vontade de receber bem.",
     quote: "Acreditamos em celebrar.",
     quoteNote: "Luísa Tembe & Ezequiel Tamele · Fundadores",
-    gardensLabel: "Os jardins",
-    gardensTitle: "A natureza já fez a primeira parte.",
-    gardensCopy: "A sombra das árvores, a amplitude dos jardins e a água junto à celebração dão a cada momento o seu próprio cenário. A Quinta transforma-se sem deixar de ser ela mesma.",
-    gardenCaptions: ["A cerimónia, abrigada pela natureza.", "A mesa preparada para receber.", "O jardim e a piscina ao cair da tarde."],
     dayLabel: "O vosso dia",
     dayTitle: "Primeiro, a expectativa. Depois, tudo ganha vida.",
     day: [
@@ -51,7 +47,7 @@ const copy = {
     footer: "Uma história de família, música e celebração.",
   },
   en: {
-    nav: [["#historia", "Our story"], ["#jardins", "The Quinta"], ["#galeria", "Album"], ["#visita", "Visit"]],
+    nav: [["#historia", "Our story"], ["#galeria", "Album"], ["#visita", "Visit"]],
     visit: "Plan a visit", menu: "Open menu", closeMenu: "Close menu",
     eyebrow: "A family quinta in Matola",
     hero: <>Where celebrations<br />become part of the <em>story.</em></>,
@@ -61,9 +57,6 @@ const copy = {
     story1: "In the 1990s, Luísa Tembe and Ezequiel Tamele opened their quinta to live jazz sessions. People met, listened to music and shared the evening. That is how Quinta Jazz Clube found its name.",
     story2: "Over the years, the place grew with the families who returned. Music made way for weddings, birthdays and gatherings across generations — always with the same desire to welcome people well.",
     quote: "We believe in celebrating.", quoteNote: "Luísa Tembe & Ezequiel Tamele · Founders",
-    gardensLabel: "The gardens", gardensTitle: "Nature has already done the first part.",
-    gardensCopy: "The shade of the trees, the breadth of the gardens and water beside the celebration give every moment its own setting. The Quinta transforms without ceasing to be itself.",
-    gardenCaptions: ["The ceremony, sheltered by nature.", "A table ready to welcome.", "The garden and pool as evening arrives."],
     dayLabel: "Your day", dayTitle: "First, anticipation. Then everything comes alive.",
     day: [["01", "Arrive", "The garden welcomes first steps, reunions and anticipation."], ["02", "Promise", "Beneath the trees, two families witness a new story begin."], ["03", "Share", "The table gathers people, conversations and stories across generations."], ["04", "Celebrate", "The light changes, music begins and the Quinta fills with movement."]],
     albumLabel: "Memories of the Quinta", albumTitle: "Every celebration leaves something with us.",
@@ -146,17 +139,6 @@ export function LandingPage() {
               <div className="grid gap-8 text-lg leading-9 text-muted sm:grid-cols-2"><p>{c.story1}</p><p>{c.story2}</p></div>
               <blockquote className="mt-16 border-l-2 border-[#b54f3b] pl-8"><p className="family-quote text-3xl italic text-strong sm:text-4xl">“{c.quote}”</p><footer className="mt-5 text-xs uppercase tracking-[0.22em] text-muted">{c.quoteNote}</footer></blockquote>
             </motion.div>
-          </div>
-        </section>
-
-        <section id="jardins" className="bg-[#e6efe8] px-5 py-28 lg:px-10 lg:py-40">
-          <div className="mx-auto max-w-[90rem]">
-            <motion.div {...reveal} className="grid gap-8 lg:grid-cols-2 lg:items-end"><div><p className="chapter-label">{c.gardensLabel}</p><h2 className="mt-7 max-w-[12ch] font-serif text-4xl leading-[1.08] text-strong sm:text-6xl">{c.gardensTitle}</h2></div><p className="max-w-xl text-lg leading-8 text-muted lg:justify-self-end">{c.gardensCopy}</p></motion.div>
-            <div className="mt-20 grid gap-5 lg:grid-cols-12 lg:items-start">
-              <figure className="lg:col-span-7"><div className="relative aspect-[4/3]"><Image src="/images/casamento-5.jpg" alt={c.gardenCaptions[0]} fill sizes="(max-width:1024px) 100vw, 58vw" className="object-cover" /></div><figcaption className="album-caption">01 · {c.gardenCaptions[0]}</figcaption></figure>
-              <figure className="lg:col-span-4 lg:col-start-9 lg:mt-32"><div className="relative aspect-[2/3]"><Image src="/images/casamento-6.jpg" alt={c.gardenCaptions[1]} fill sizes="(max-width:1024px) 100vw, 33vw" className="object-cover" /></div><figcaption className="album-caption">02 · {c.gardenCaptions[1]}</figcaption></figure>
-              <figure className="lg:col-span-6 lg:col-start-3 lg:-mt-10"><div className="relative aspect-[16/10]"><Image src="/images/festa-7.jpg" alt={c.gardenCaptions[2]} fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" /></div><figcaption className="album-caption">03 · {c.gardenCaptions[2]}</figcaption></figure>
-            </div>
           </div>
         </section>
 
