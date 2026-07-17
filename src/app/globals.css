@@ -10,11 +10,11 @@
   --card: #ffffff;
   --card-solid: #ffffff;
   --field: #ffffff;
-  --overlay: rgba(16, 24, 20, 0.96);
+  --overlay: rgba(53, 93, 77, 0.96);
   --line: rgba(35, 42, 37, 0.14);
   --line-strong: rgba(35, 42, 37, 0.25);
-  --text-strong: #142f25;
-  --text-body: #334b42;
+  --text-strong: #29483c;
+  --text-body: #455e54;
   --text-muted: #64766f;
   --text-faint: #817f77;
   --scheme: light;
