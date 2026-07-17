@@ -1,514 +1,185 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  Armchair,
-  ArrowRight,
-  CalendarDays,
-  ChevronDown,
-  KeyRound,
-  MapPin,
-  Menu,
-  MessageCircle,
-  Palette,
-  Phone,
-  X,
-} from "lucide-react";
+import { ArrowRight, MapPin, Menu, MessageCircle, Phone, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { AboutSection } from "@/components/about-section";
 import { BackToTop } from "@/components/back-to-top";
 import { ContactForm } from "@/components/contact-form";
-import { SectionHeading } from "@/components/section-heading";
-import { StatsBar } from "@/components/stats-bar";
 import { translations, type Lang } from "@/lib/translations";
 
-// lucide has no saxophone icon; custom glyph drawn in the same stroke style
-function SaxophoneIcon({ size = 24, className }: { size?: number; className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <path d="M2.8 5.2l2.7-1.1" />
-      <path d="M5.5 4.1C8 2.6 10.8 3.4 11.3 6.2l1.3 8.6c.3 2.8.8 4.8 2.7 5.1 2.1.3 3.3-1.6 3-4l-.6-4.4" />
-      <path d="M15.9 11l4 1.1" />
-      <path d="M10.9 8.4h1.6" />
-      <path d="M11.3 11h1.6" />
-      <path d="M11.7 13.6h1.6" />
-    </svg>
-  );
-}
+const copy = {
+  pt: {
+    nav: [["#historia", "A nossa história"], ["#jardins", "A Quinta"], ["#galeria", "Álbum"], ["#visita", "Visitar"]],
+    visit: "Marcar uma visita",
+    menu: "Abrir menu",
+    closeMenu: "Fechar menu",
+    eyebrow: "Uma quinta de família, na Matola",
+    hero: <>Onde as celebrações<br />entram para a <em>história.</em></>,
+    intro: "Entre árvores maduras e jardins que há décadas recebem famílias, cada casamento encontra espaço para ser vivido à sua maneira.",
+    scroll: "Conhecer a nossa história",
+    storyLabel: "A nossa história",
+    storyTitle: "Tudo começou com uma família e música ao vivo.",
+    story1: "Nos anos 1990, Luísa Tembe e Ezequiel Tamele abriram as portas da sua quinta a sessões de jazz. Pessoas encontravam-se, ouviam música e partilhavam a noite. Foi assim que nasceu o nome Quinta Jazz Clube.",
+    story2: "Com os anos, o lugar cresceu com as famílias que aqui regressavam. A música abriu caminho a casamentos, aniversários e encontros entre gerações — sempre com a mesma vontade de receber bem.",
+    quote: "Acreditamos em celebrar.",
+    quoteNote: "Luísa Tembe & Ezequiel Tamele · Fundadores",
+    gardensLabel: "Os jardins",
+    gardensTitle: "A natureza já fez a primeira parte.",
+    gardensCopy: "A sombra das árvores, a amplitude dos jardins e a água junto à celebração dão a cada momento o seu próprio cenário. A Quinta transforma-se sem deixar de ser ela mesma.",
+    gardenCaptions: ["A cerimónia, abrigada pela natureza.", "A mesa preparada para receber.", "O jardim e a piscina ao cair da tarde."],
+    dayLabel: "O vosso dia",
+    dayTitle: "Primeiro, a expectativa. Depois, tudo ganha vida.",
+    day: [
+      ["01", "Chegar", "O jardim recebe os primeiros passos, os reencontros e a expectativa."],
+      ["02", "Prometer", "Sob as árvores, duas famílias testemunham o início de uma nova história."],
+      ["03", "Partilhar", "A mesa reúne pessoas, conversas e histórias que atravessam gerações."],
+      ["04", "Celebrar", "A luz muda, a música começa e a Quinta enche-se de movimento."],
+    ],
+    albumLabel: "Memórias da Quinta",
+    albumTitle: "Cada celebração deixa qualquer coisa connosco.",
+    albumCopy: "Um álbum aberto de cerimónias, mesas, jardins e noites que já fazem parte desta casa.",
+    open: "Abrir fotografia",
+    close: "Fechar álbum",
+    othersLabel: "E há sempre mais razões para nos reunirmos",
+    othersTitle: "Famílias crescem. Histórias continuam.",
+    othersCopy: "Aniversários, encontros privados, música e celebrações profissionais também encontram lugar na Quinta — depois dos casamentos, como novos capítulos da mesma história.",
+    visitLabel: "O próximo capítulo pode começar aqui",
+    visitTitle: "Venham sentir a Quinta.",
+    visitCopy: "Há lugares que uma fotografia não consegue explicar. Marquem uma visita, caminhem pelos jardins e contem-nos como imaginam o vosso dia.",
+    location: "Quinta Jazz Clube · Matola, Moçambique",
+    footer: "Uma história de família, música e celebração.",
+  },
+  en: {
+    nav: [["#historia", "Our story"], ["#jardins", "The Quinta"], ["#galeria", "Album"], ["#visita", "Visit"]],
+    visit: "Plan a visit", menu: "Open menu", closeMenu: "Close menu",
+    eyebrow: "A family quinta in Matola",
+    hero: <>Where celebrations<br />become part of the <em>story.</em></>,
+    intro: "Among mature trees and gardens that have welcomed families for decades, every wedding finds room to be lived in its own way.",
+    scroll: "Discover our story",
+    storyLabel: "Our story", storyTitle: "It began with a family and live music.",
+    story1: "In the 1990s, Luísa Tembe and Ezequiel Tamele opened their quinta to live jazz sessions. People met, listened to music and shared the evening. That is how Quinta Jazz Clube found its name.",
+    story2: "Over the years, the place grew with the families who returned. Music made way for weddings, birthdays and gatherings across generations — always with the same desire to welcome people well.",
+    quote: "We believe in celebrating.", quoteNote: "Luísa Tembe & Ezequiel Tamele · Founders",
+    gardensLabel: "The gardens", gardensTitle: "Nature has already done the first part.",
+    gardensCopy: "The shade of the trees, the breadth of the gardens and water beside the celebration give every moment its own setting. The Quinta transforms without ceasing to be itself.",
+    gardenCaptions: ["The ceremony, sheltered by nature.", "A table ready to welcome.", "The garden and pool as evening arrives."],
+    dayLabel: "Your day", dayTitle: "First, anticipation. Then everything comes alive.",
+    day: [["01", "Arrive", "The garden welcomes first steps, reunions and anticipation."], ["02", "Promise", "Beneath the trees, two families witness a new story begin."], ["03", "Share", "The table gathers people, conversations and stories across generations."], ["04", "Celebrate", "The light changes, music begins and the Quinta fills with movement."]],
+    albumLabel: "Memories of the Quinta", albumTitle: "Every celebration leaves something with us.",
+    albumCopy: "An open album of ceremonies, tables, gardens and evenings that are now part of this home.", open: "Open photograph", close: "Close album",
+    othersLabel: "And there are always more reasons to gather", othersTitle: "Families grow. Stories continue.",
+    othersCopy: "Birthdays, private gatherings, music and professional celebrations also find a place at the Quinta — after weddings, as new chapters in the same story.",
+    visitLabel: "The next chapter can begin here", visitTitle: "Come and experience the Quinta.",
+    visitCopy: "Some places cannot be explained by a photograph. Plan a visit, walk through the gardens and tell us how you imagine your day.",
+    location: "Quinta Jazz Clube · Matola, Mozambique", footer: "A story of family, music and celebration.",
+  },
+} as const;
 
-// lucide-react removed brand icons; same glyph inlined from the old Instagram icon
-function InstagramIcon({ size = 24, className }: { size?: number; className?: string }) {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-    >
-      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
-    </svg>
-  );
-}
+const album = [
+  ["/images/quinta-cerimonia.jpg", "Cerimónia entre árvores maduras"],
+  ["/images/casamento-6.jpg", "A mesa dos noivos"],
+  ["/images/casamento-7.png", "Um encontro de famílias"],
+  ["/images/festa-4.jpg", "Celebração junto à piscina"],
+  ["/images/casamento-8.png", "Detalhes de uma celebração"],
+  ["/images/musica-7.png", "A Quinta ao cair da noite"],
+] as const;
 
-// One set of photos per gallery category; the first photo is the card cover.
-const galleryImageSets = [
-  [
-    "/images/casamento-5.jpg",
-    "/images/casamento-6.jpg",
-    "/images/casamento-7.png",
-    "/images/casamento-8.png",
-    "/images/casamento-3.png",
-    "/images/casamento-1.png",
-    "/images/casamento-4.jpg",
-  ],
-  [
-    "/images/musica-7.png",
-    "/images/musica-3.png",
-    "/images/musica-5.png",
-    "/images/musica-6.png",
-    "/images/musica-2.png",
-    "/images/musica-9.png",
-    "/images/musica-10.png",
-  ],
-  [
-    "/images/festa-4.jpg",
-    "/images/festa-1.jpg",
-    "/images/festa-2.jpg",
-    "/images/festa-3.jpg",
-    "/images/festa-5.jpg",
-    "/images/festa-6.jpg",
-    "/images/festa-7.jpg",
-    "/images/festa-8.jpg",
-    "/images/festa-9.jpg",
-    "/images/festa-10.jpg",
-    "/images/festa-11.png",
-    "/images/festa-12.png",
-  ],
-  ["/images/festa-7.jpg", "/images/festa-8.jpg", "/images/festa-10.jpg"],
-];
-
-const reasonIcons = [Armchair, Palette, KeyRound, MapPin];
-
-// Renders **segments** of a translation string in bold.
-function renderBold(text: string) {
-  return text.split(/\*\*(.+?)\*\*/g).map((part, index) =>
-    index % 2 === 1 ? <strong key={index} className="font-bold">{part}</strong> : part,
-  );
-}
-
-function plainText(text: string) {
-  return text.replace(/\*\*/g, "");
-}
+const reveal = { initial: { opacity: 0, y: 18 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true, margin: "-80px" }, transition: { duration: 0.65 } } as const;
 
 export function LandingPage() {
-  const [activeGallery, setActiveGallery] = useState<{ images: string[]; title: string; category: string } | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("hero");
   const [lang, setLang] = useState<Lang>("pt");
-
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [activeImage, setActiveImage] = useState<number | null>(null);
+  const c = copy[lang];
   const t = translations[lang];
 
+  useEffect(() => { document.documentElement.lang = lang; }, [lang]);
   useEffect(() => {
-    document.documentElement.lang = lang;
-    localStorage.setItem("qjc-lang", lang);
-  }, [lang]);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveSection(entry.target.id);
-        });
-      },
-      { rootMargin: "-45% 0px -45% 0px" },
-    );
-    t.dots.forEach(([id]) => {
-      const element = document.getElementById(id);
-      if (element) observer.observe(element);
-    });
-    return () => observer.disconnect();
-  }, [t]);
+    if (activeImage === null) return;
+    const close = (event: KeyboardEvent) => event.key === "Escape" && setActiveImage(null);
+    document.addEventListener("keydown", close);
+    document.body.style.overflow = "hidden";
+    return () => { document.removeEventListener("keydown", close); document.body.style.overflow = ""; };
+  }, [activeImage]);
 
   return (
     <div className="min-h-screen bg-surface text-body">
-      <header className="sticky top-0 z-50 border-b border-line bg-surface/90 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3 lg:px-8">
-          <a href="#hero" className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-full border border-gold-400/50 text-gold-400">
-              <SaxophoneIcon size={20} />
-            </span>
-            <span className="font-serif text-lg font-medium tracking-wide text-strong sm:text-2xl">
-              Quinta Jazz Clube
-            </span>
-          </a>
-          <nav className="hidden items-center gap-8 text-sm font-medium text-body lg:flex">
-            {t.nav.links.map(([href, label]) => (
-              <a key={href} href={href} className="transition hover:text-gold-400">{label}</a>
-            ))}
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-white/15 bg-[#12372b]/82 text-white backdrop-blur-md">
+        <div className="mx-auto flex h-20 max-w-[90rem] items-center justify-between px-5 lg:px-10">
+          <a href="#inicio" className="text-lg font-semibold tracking-[-0.02em] sm:text-xl">Quinta Jazz Clube</a>
+          <nav aria-label="Principal" className="hidden items-center gap-8 text-sm lg:flex">
+            {c.nav.map(([href, label]) => <a key={href} href={href} className="text-white/75 transition hover:text-white">{label}</a>)}
           </nav>
-          <div className="hidden items-center gap-4 lg:flex">
-            <button
-              type="button"
-              onClick={() => setLang(lang === "pt" ? "en" : "pt")}
-              aria-label={t.nav.switchLang}
-              className="rounded-full border border-line-strong px-3 py-2 text-xs font-bold tracking-widest text-strong transition hover:border-gold-400/60 hover:text-gold-400"
-            >
-              {lang === "pt" ? "EN" : "PT"}
-            </button>
-            <a href="tel:+258877490160" className="flex items-center gap-2 text-sm font-semibold text-strong transition hover:text-gold-400">
-              <Phone size={16} className="text-gold-400" />
-              +258 87 749 0160
-            </a>
-            <a href="#contacto" className="inline-flex items-center gap-2 rounded-xl bg-gold-400 px-5 py-2.5 text-sm font-semibold text-stone-950 transition hover:bg-gold-300">
-              {t.nav.cta}
-              <ArrowRight size={16} />
-            </a>
-          </div>
-          <div className="flex items-center gap-2 lg:hidden">
-            <button
-              type="button"
-              onClick={() => setLang(lang === "pt" ? "en" : "pt")}
-              aria-label={t.nav.switchLang}
-              className="rounded-full border border-line-strong px-2.5 py-2 text-xs font-bold tracking-widest text-strong"
-            >
-              {lang === "pt" ? "EN" : "PT"}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen((value) => !value)}
-              className="rounded-full border border-line-strong p-2 text-strong"
-              aria-label={mobileMenuOpen ? t.nav.closeMenu : t.nav.openMenu}
-            >
-              {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-            </button>
+          <div className="flex items-center gap-3">
+            <button type="button" onClick={() => setLang(lang === "pt" ? "en" : "pt")} className="min-h-11 px-3 text-xs font-semibold tracking-[0.18em] text-white/80" aria-label={t.nav.switchLang}>{lang === "pt" ? "EN" : "PT"}</button>
+            <a href="#visita" className="hidden min-h-11 items-center bg-white px-5 text-sm font-semibold text-[#12372b] transition hover:bg-[#dce9e1] sm:inline-flex">{c.visit}</a>
+            <button type="button" className="grid min-h-11 min-w-11 place-items-center lg:hidden" onClick={() => setMenuOpen(!menuOpen)} aria-expanded={menuOpen} aria-label={menuOpen ? c.closeMenu : c.menu}>{menuOpen ? <X /> : <Menu />}</button>
           </div>
         </div>
-        {mobileMenuOpen ? (
-          <div className="border-t border-line bg-surface px-6 py-4 lg:hidden">
-            <div className="flex flex-col gap-3 text-sm font-medium text-body">
-              {t.nav.links.map(([href, label]) => (
-                <a key={href} href={href} onClick={() => setMobileMenuOpen(false)}>{label}</a>
-              ))}
-              <a
-                href="#contacto"
-                onClick={() => setMobileMenuOpen(false)}
-                className="mt-2 rounded-xl bg-gold-400 px-5 py-2.5 text-center font-semibold text-stone-950"
-              >
-                {t.nav.cta}
-              </a>
-            </div>
-          </div>
-        ) : null}
+        {menuOpen && <nav className="border-t border-white/15 bg-[#12372b] px-6 py-6 lg:hidden">{c.nav.map(([href, label]) => <a key={href} href={href} onClick={() => setMenuOpen(false)} className="block border-b border-white/10 py-4 text-lg">{label}</a>)}</nav>}
       </header>
 
-      <div className="fixed right-5 top-1/2 z-40 hidden -translate-y-1/2 flex-col gap-3 xl:flex">
-        {t.dots.map(([id, label]) => (
-          <a
-            key={id}
-            href={`#${id}`}
-            aria-label={label}
-            className={`h-2 w-2 rounded-full transition ${
-              activeSection === id ? "scale-150 bg-gold-400" : "bg-strong/20 hover:bg-strong/40"
-            }`}
-          />
-        ))}
-      </div>
-
       <main>
-        <section id="hero" className="relative isolate overflow-hidden">
-          <Image
-            src="/images/quinta-cerimonia.jpg"
-            alt={t.hero.imageAlt}
-            fill
-            priority
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(13,19,16,0.94)_0%,rgba(13,19,16,0.72)_48%,rgba(13,19,16,0.16)_100%)]" />
-          <div className="relative mx-auto flex min-h-[92svh] max-w-7xl flex-col justify-center px-6 pb-16 pt-24 lg:px-8">
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7 }}
-              className="flex max-w-3xl flex-col items-start text-left"
-            >
-              <div className="mb-8 flex items-center gap-4 text-xs font-semibold uppercase tracking-[0.32em] text-gold-200">
-                <span className="h-px w-10 bg-gold-300/70" aria-hidden="true" />
-                {t.hero.badge}
+        <section id="inicio" className="relative min-h-[100svh] overflow-hidden bg-[#12372b]">
+          <Image src="/images/quinta-cerimonia.jpg" alt={lang === "pt" ? "Cerimónia preparada nos jardins da Quinta Jazz Clube" : "Ceremony prepared in the gardens of Quinta Jazz Clube"} fill priority sizes="100vw" className="object-cover object-center" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(16,26,21,.84)_0%,rgba(16,26,21,.46)_52%,rgba(16,26,21,.12)_100%)]" />
+          <div className="relative mx-auto flex min-h-[100svh] max-w-[90rem] items-end px-5 pb-16 pt-32 lg:px-10 lg:pb-20">
+            <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.9 }} className="max-w-4xl text-white">
+              <p className="mb-7 text-xs font-semibold uppercase tracking-[0.3em] text-white/75">{c.eyebrow}</p>
+              <h1 className="text-[clamp(3.25rem,8vw,7.5rem)] leading-[.94] [&_em]:font-normal [&_em]:text-[#a9d4d7]">{c.hero}</h1>
+              <div className="mt-9 flex max-w-2xl flex-col gap-7 border-t border-white/35 pt-7 sm:flex-row sm:items-end sm:justify-between">
+                <p className="max-w-xl text-base leading-7 text-white/82 sm:text-lg">{c.intro}</p>
+                <a href="#historia" className="inline-flex shrink-0 items-center gap-2 text-sm font-semibold">{c.scroll}<ArrowRight size={16} /></a>
               </div>
-              <h1 className="font-serif text-5xl font-medium leading-[1.02] tracking-[-0.035em] text-white sm:text-6xl lg:text-8xl">
-                {t.hero.titleLine1}
-                <br />
-                {t.hero.titleLine2Pre}
-                <em className="italic text-gold-400">{t.hero.titleAccent}</em>.
-              </h1>
-              <p className="mt-8 max-w-xl text-base leading-relaxed text-stone-300 sm:text-lg">
-                {t.hero.paragraph}
-              </p>
-              <div className="mt-10 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-                <a href="#contacto" className="inline-flex min-h-12 items-center justify-center gap-3 bg-gold-400 px-7 py-3 text-sm font-semibold text-stone-950 transition hover:bg-gold-300 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-300">
-                  {lang === "pt" ? "Agendar uma visita" : "Schedule a visit"}<ArrowRight size={16} />
-                </a>
-                <a href="https://wa.me/258877490160" className="inline-flex min-h-12 items-center justify-center gap-3 border border-white/40 px-7 py-3 text-sm font-semibold text-white transition hover:border-white hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">
-                  <MessageCircle size={17} /> WhatsApp
-                </a>
-              </div>
-              <p className="mt-6 text-xs font-medium uppercase tracking-[0.2em] text-stone-300">
-                {lang === "pt" ? "Matola · Casamentos · Celebrações · Eventos corporativos" : "Matola · Weddings · Celebrations · Corporate events"}
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.7, delay: 0.15 }}
-              className="mt-16 w-full max-w-4xl lg:mt-20"
-            >
-              <StatsBar stats={t.hero.stats} />
             </motion.div>
           </div>
         </section>
 
-        <AboutSection t={t.about} />
+        <section id="historia" className="px-5 py-28 lg:px-10 lg:py-40">
+          <div className="mx-auto grid max-w-7xl gap-14 lg:grid-cols-[.75fr_1.25fr] lg:gap-28">
+            <motion.div {...reveal}>
+              <p className="chapter-label">{c.storyLabel}</p>
+              <h2 className="mt-7 font-serif text-4xl leading-[1.08] text-strong sm:text-6xl">{c.storyTitle}</h2>
+            </motion.div>
+            <motion.div {...reveal} className="lg:pt-14">
+              <div className="grid gap-8 text-lg leading-9 text-muted sm:grid-cols-2"><p>{c.story1}</p><p>{c.story2}</p></div>
+              <blockquote className="mt-16 border-l-2 border-[#b54f3b] pl-8"><p className="family-quote text-3xl italic text-strong sm:text-4xl">“{c.quote}”</p><footer className="mt-5 text-xs uppercase tracking-[0.22em] text-muted">{c.quoteNote}</footer></blockquote>
+            </motion.div>
+          </div>
+        </section>
 
-        <section className="bg-surface px-6 py-24 lg:px-8 lg:py-32" aria-labelledby="experience-title">
-          <div className="mx-auto max-w-7xl">
-            <div className="grid gap-14 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.35em] text-gold-500">{lang === "pt" ? "Uma experiência completa" : "A complete experience"}</p>
-                <h2 id="experience-title" className="mt-6 max-w-[12ch] font-serif text-4xl leading-[1.08] text-strong sm:text-5xl">{lang === "pt" ? "Do primeiro encontro ao último brinde." : "From the first meeting to the final toast."}</h2>
-              </div>
-              <div className="grid gap-px border-y border-line sm:grid-cols-3 sm:border-x">
-                {[
-                  ["01", lang === "pt" ? "Conhecer" : "Discover", lang === "pt" ? "Uma visita privada para sentir o espaço e partilhar a sua visão." : "A private visit to experience the venue and share your vision."],
-                  ["02", lang === "pt" ? "Desenhar" : "Design", lang === "pt" ? "Ambiente, menu e produção pensados em conjunto, detalhe a detalhe." : "Setting, menu and production considered together, detail by detail."],
-                  ["03", lang === "pt" ? "Celebrar" : "Celebrate", lang === "pt" ? "Uma equipa presente para que possa viver o momento com tranquilidade." : "A present team so you can enjoy the moment with complete peace of mind."],
-                ].map(([number, title, copy]) => (
-                  <article key={number} className="border-line px-6 py-8 sm:border-r sm:last:border-r-0 lg:px-8 lg:py-10">
-                    <span className="font-serif text-sm italic text-gold-500">{number}</span>
-                    <h3 className="mt-8 font-serif text-2xl text-strong">{title}</h3>
-                    <p className="mt-4 text-sm leading-7 text-muted">{copy}</p>
-                  </article>
-                ))}
-              </div>
+        <section id="jardins" className="bg-[#e6efe8] px-5 py-28 lg:px-10 lg:py-40">
+          <div className="mx-auto max-w-[90rem]">
+            <motion.div {...reveal} className="grid gap-8 lg:grid-cols-2 lg:items-end"><div><p className="chapter-label">{c.gardensLabel}</p><h2 className="mt-7 max-w-[12ch] font-serif text-4xl leading-[1.08] text-strong sm:text-6xl">{c.gardensTitle}</h2></div><p className="max-w-xl text-lg leading-8 text-muted lg:justify-self-end">{c.gardensCopy}</p></motion.div>
+            <div className="mt-20 grid gap-5 lg:grid-cols-12 lg:items-start">
+              <figure className="lg:col-span-7"><div className="relative aspect-[4/3]"><Image src="/images/casamento-5.jpg" alt={c.gardenCaptions[0]} fill sizes="(max-width:1024px) 100vw, 58vw" className="object-cover" /></div><figcaption className="album-caption">01 · {c.gardenCaptions[0]}</figcaption></figure>
+              <figure className="lg:col-span-4 lg:col-start-9 lg:mt-32"><div className="relative aspect-[2/3]"><Image src="/images/casamento-6.jpg" alt={c.gardenCaptions[1]} fill sizes="(max-width:1024px) 100vw, 33vw" className="object-cover" /></div><figcaption className="album-caption">02 · {c.gardenCaptions[1]}</figcaption></figure>
+              <figure className="lg:col-span-6 lg:col-start-3 lg:-mt-10"><div className="relative aspect-[16/10]"><Image src="/images/festa-7.jpg" alt={c.gardenCaptions[2]} fill sizes="(max-width:1024px) 100vw, 50vw" className="object-cover" /></div><figcaption className="album-caption">03 · {c.gardenCaptions[2]}</figcaption></figure>
             </div>
           </div>
         </section>
 
-        <section id="diferenciais" className="relative isolate overflow-hidden py-24">
-          <Image
-            src="/images/musica-7.png"
-            alt={t.why.imageAlt}
-            fill
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(12,10,8,0.95)_0%,rgba(12,10,8,0.8)_45%,rgba(12,10,8,0.65)_100%)]" />
-          <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
-            <div className="grid gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-              <div>
-                <SectionHeading
-                  onImage
-                  eyebrow={t.why.eyebrow}
-                  title={t.why.title}
-                  accent={t.why.accent}
-                  description={t.why.description}
-                />
-                <a href="#galeria" className="mt-10 inline-flex items-center gap-3 border-b border-gold-400 pb-2 text-sm font-semibold text-white transition hover:text-gold-300">{t.why.watch}<ArrowRight size={16} /></a>
-              </div>
-              <div className="grid gap-5 sm:grid-cols-2">
-                {t.why.items.map((reason, index) => {
-                  const Icon = reasonIcons[index];
-                  return (
-                    <div
-                      key={reason.title}
-                      className="group flex cursor-default flex-col border-t border-white/25 bg-[#0c0a08]/45 p-6 backdrop-blur-sm transition hover:border-gold-400/60"
-                    >
-                      <Icon size={30} strokeWidth={1.25} className="text-gold-300" />
-                      <h3 className="mt-5 font-serif text-xl font-medium text-white">{reason.title}</h3>
-                      <p className="mt-3 text-sm leading-7 text-stone-400">{reason.text}</p>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
+        <section className="bg-[#12372b] px-5 py-28 text-white lg:px-10 lg:py-40">
+          <div className="mx-auto max-w-7xl"><motion.div {...reveal}><p className="text-xs uppercase tracking-[.28em] text-white/60">{c.dayLabel}</p><h2 className="mt-7 max-w-4xl font-serif text-4xl leading-[1.08] sm:text-6xl">{c.dayTitle}</h2></motion.div>
+            <div className="mt-20 grid border-t border-white/25 md:grid-cols-4">{c.day.map(([n,title,text]) => <article key={n} className="border-b border-white/20 py-8 md:border-b-0 md:border-r md:px-7 md:first:pl-0 md:last:border-r-0"><span className="font-serif italic text-[#d6c6a8]">{n}</span><h3 className="mt-10 font-serif text-3xl">{title}</h3><p className="mt-4 text-sm leading-7 text-white/65">{text}</p></article>)}</div>
           </div>
         </section>
 
-        <section id="galeria" className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-          <SectionHeading
-            eyebrow={t.gallery.eyebrow}
-            title={t.gallery.title}
-            accent={t.gallery.accent}
-            description={t.gallery.description}
-          />
-          <div className="mt-12 columns-1 gap-4 md:columns-2">
-            {t.gallery.items.map((item, index) => (
-              <motion.button
-                key={galleryImageSets[index][0]}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: index * 0.04 }}
-                onClick={() => {
-                  setActiveGallery({ images: galleryImageSets[index], ...item });
-                  setActiveIndex(0);
-                }}
-                className="mb-4 block w-full overflow-hidden border border-line bg-card text-left transition hover:border-gold-500/60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold-500"
-              >
-                <div className="relative h-72 w-full">
-                  <Image src={galleryImageSets[index][0]} alt={plainText(item.title)} fill sizes="(max-width: 768px) 100vw, 50vw" className="object-cover transition duration-700 hover:scale-[1.025]" />
-                </div>
-                <div className="p-4">
-                  <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-400">{item.category}</p>
-                  <h3 className="mt-2 font-serif text-lg font-medium text-strong">{renderBold(item.title)}</h3>
-                </div>
-              </motion.button>
-            ))}
+        <section id="galeria" className="px-5 py-28 lg:px-10 lg:py-40">
+          <div className="mx-auto max-w-[90rem]"><motion.div {...reveal} className="max-w-4xl"><p className="chapter-label">{c.albumLabel}</p><h2 className="mt-7 font-serif text-4xl leading-[1.08] text-strong sm:text-6xl">{c.albumTitle}</h2><p className="mt-7 max-w-2xl text-lg leading-8 text-muted">{c.albumCopy}</p></motion.div>
+            <div className="mt-20 grid auto-rows-[14rem] grid-cols-2 gap-3 md:auto-rows-[20rem] md:grid-cols-12">{album.map(([src, alt], index) => <motion.button {...reveal} key={src} type="button" onClick={() => setActiveImage(index)} aria-label={`${c.open}: ${alt}`} className={`group relative overflow-hidden text-left ${index === 0 ? "col-span-2 row-span-2 md:col-span-7" : index === 1 ? "col-span-1 row-span-2 md:col-span-5" : index === 2 ? "col-span-1 md:col-span-4" : index === 3 ? "col-span-2 md:col-span-8" : "col-span-1 md:col-span-6"}`}><Image src={src} alt={alt} fill sizes="(max-width:768px) 100vw, 55vw" className="object-cover transition duration-700 group-hover:scale-[1.02]" /><span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent px-5 pb-5 pt-16 text-sm text-white">{alt}</span></motion.button>)}</div>
           </div>
         </section>
 
-        <section id="faq" className="mx-auto max-w-7xl px-6 py-20 lg:px-8">
-          <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr] lg:items-start">
-            <div>
-              <SectionHeading
-                eyebrow={t.faq.eyebrow}
-                title={t.faq.title}
-                accent={t.faq.accent}
-                description={t.faq.description}
-              />
-            </div>
-            <div className="space-y-4">
-              {t.faq.items.map((faq, index) => {
-                const isOpen = openFaq === index;
-                return (
-                  <div key={faq.question} className="border-b border-line bg-card px-1 py-5">
-                    <button
-                      type="button"
-                      onClick={() => setOpenFaq(isOpen ? null : index)}
-                      className="flex w-full items-center justify-between text-left"
-                    >
-                      <span className="font-semibold text-strong">{faq.question}</span>
-                      <ChevronDown className={`text-gold-400 transition ${isOpen ? "rotate-180" : ""}`} size={18} />
-                    </button>
-                    {isOpen ? <p className="mt-3 text-sm leading-7 text-muted">{faq.answer}</p> : null}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </section>
+        <section className="border-y border-line bg-[#e6efe8] px-5 py-24 lg:px-10 lg:py-32"><div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-2"><p className="chapter-label">{c.othersLabel}</p><div><h2 className="text-4xl leading-[1.08] text-strong sm:text-5xl">{c.othersTitle}</h2><p className="mt-7 max-w-xl text-lg leading-8 text-muted">{c.othersCopy}</p></div></div></section>
 
-        <section id="contacto" className="mx-auto max-w-7xl px-6 pb-24 lg:px-8">
-          <div className="grid gap-12 border-y border-line bg-card px-0 py-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-20 lg:px-10 lg:py-16">
-            <div>
-              <SectionHeading
-                eyebrow={t.contact.eyebrow}
-                title={t.contact.title}
-                accent={t.contact.accent}
-                description={t.contact.description}
-              />
-              <div className="mt-8 space-y-4 text-sm text-body">
-                <div className="flex items-center gap-3"><MapPin size={18} className="text-gold-400" /><span>{t.contact.location}</span></div>
-                <div className="flex items-center gap-3"><Phone size={18} className="text-gold-400" /><span>+258 87 749 0160</span></div>
-                <div className="flex items-center gap-3"><CalendarDays size={18} className="text-gold-400" /><span>{t.contact.hours}</span></div>
-                <div className="flex items-center gap-3"><InstagramIcon size={18} className="text-gold-400" /><span>@quintajazzclube</span></div>
-              </div>
-              <div className="mt-8 flex gap-3">
-                <a href="https://wa.me/258877490160" className="inline-flex min-h-12 items-center gap-2 bg-[#29483a] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[#203a2f]">
-                  <MessageCircle size={16} /> {t.contact.whatsapp}
-                </a>
-                <a href="tel:+258877490160" className="inline-flex min-h-12 items-center gap-2 border border-line-strong px-5 py-3 text-sm font-semibold text-strong transition hover:border-gold-500 hover:text-gold-600">
-                  <Phone size={16} /> {t.contact.call}
-                </a>
-              </div>
-            </div>
-            <ContactForm key={lang} t={t.form} />
-          </div>
-        </section>
+        <section id="visita" className="px-5 py-28 lg:px-10 lg:py-40"><div className="mx-auto grid max-w-7xl gap-16 lg:grid-cols-[.8fr_1.2fr] lg:gap-28"><div><p className="chapter-label">{c.visitLabel}</p><h2 className="mt-7 font-serif text-5xl leading-[1.02] text-strong sm:text-7xl">{c.visitTitle}</h2><p className="mt-7 max-w-md text-lg leading-8 text-muted">{c.visitCopy}</p><div className="mt-10 space-y-4 text-sm"><p className="flex gap-3"><MapPin size={18} />{c.location}</p><a href="tel:+258877490160" className="flex gap-3"><Phone size={18} />+258 87 749 0160</a><a href="https://wa.me/258877490160" className="flex gap-3"><MessageCircle size={18} />WhatsApp</a></div></div><ContactForm key={lang} t={t.form} /></div></section>
       </main>
 
-      <footer className="border-t border-line py-8 text-muted">
-        <div className="mx-auto flex max-w-7xl flex-col gap-4 px-6 text-sm lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <p>{t.footer.rights}</p>
-          <div className="flex gap-4">
-            {t.footer.links.map(([href, label]) => (
-              <a key={href} href={href} className="transition hover:text-gold-400">{label}</a>
-            ))}
-          </div>
-        </div>
-      </footer>
+      <footer className="bg-[#12372b] px-5 py-12 text-white/70 lg:px-10"><div className="mx-auto flex max-w-[90rem] flex-col gap-8 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xl font-semibold text-white">Quinta Jazz Clube</p><p className="mt-2 text-sm">{c.footer}</p></div><div className="flex items-center gap-5 text-sm"><a href="https://www.instagram.com/quintajazzclube/" className="transition hover:text-white">Instagram</a><span>© 2026</span></div></div></footer>
 
-      <AnimatePresence>
-        {activeGallery ? (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/85 p-4"
-            onClick={() => setActiveGallery(null)}
-          >
-            <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.95 }}
-              className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-[1.75rem] border border-white/15 bg-[#12100c] p-3"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <button type="button" onClick={() => setActiveGallery(null)} className="absolute right-4 top-4 z-10 rounded-full bg-black/60 px-3 py-2 text-sm text-white">{t.gallery.close}</button>
-              <Image
-                src={activeGallery.images[activeIndex]}
-                alt={`${plainText(activeGallery.title)} — ${activeIndex + 1}`}
-                width={1200}
-                height={800}
-                className="max-h-[62vh] w-full rounded-[1.25rem] object-contain"
-              />
-              {activeGallery.images.length > 1 ? (
-                <div className="mt-3 flex gap-3 overflow-x-auto px-1">
-                  {activeGallery.images.map((src, index) => (
-                    <button
-                      key={src}
-                      type="button"
-                      onClick={() => setActiveIndex(index)}
-                      aria-label={`${plainText(activeGallery.title)} — ${index + 1}`}
-                      className={`relative h-20 w-28 shrink-0 overflow-hidden rounded-xl border-2 transition ${
-                        index === activeIndex ? "border-gold-400" : "border-transparent opacity-60 hover:opacity-100"
-                      }`}
-                    >
-                      <Image src={src} alt="" fill className="object-cover" />
-                    </button>
-                  ))}
-                </div>
-              ) : null}
-              <div className="px-2 py-4 text-white">
-                <p className="text-xs font-semibold uppercase tracking-[0.25em] text-gold-400">{activeGallery.category}</p>
-                <h3 className="mt-2 font-serif text-2xl font-medium">{renderBold(activeGallery.title)}</h3>
-              </div>
-            </motion.div>
-          </motion.div>
-        ) : null}
-      </AnimatePresence>
-
+      <AnimatePresence>{activeImage !== null && <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} role="dialog" aria-modal="true" aria-label={album[activeImage][1]} className="fixed inset-0 z-[70] grid place-items-center bg-[#111713]/95 p-4" onClick={() => setActiveImage(null)}><button type="button" onClick={() => setActiveImage(null)} className="absolute right-5 top-5 z-10 min-h-11 border border-white/30 px-4 text-sm text-white">{c.close}</button><motion.div initial={{ scale: .98 }} animate={{ scale: 1 }} className="relative h-[82vh] w-full max-w-6xl" onClick={e => e.stopPropagation()}><Image src={album[activeImage][0]} alt={album[activeImage][1]} fill sizes="100vw" className="object-contain" /></motion.div></motion.div>}</AnimatePresence>
       <BackToTop />
     </div>
   );
